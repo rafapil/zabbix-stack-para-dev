@@ -1,19 +1,19 @@
 version: '3.5'
 services:
  zabbix-server:
-  image: zabbix/zabbix-server-mysql:centos-5.0-latest
+  image: zabbix/zabbix-server-mysql:centos-5.4-latest
   ports:
    - "10051:10051"
   volumes:
    #- /etc/localtime:/etc/localtime:ro
    #- /etc/timezone:/etc/timezone:ro 
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/alertscripts:/usr/lib/zabbix/alertscripts:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/externalscripts:/usr/lib/zabbix/externalscripts:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/export:/var/lib/zabbix/export:rw
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/modules:/var/lib/zabbix/modules:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/enc:/var/lib/zabbix/enc:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/mibs:/var/lib/zabbix/mibs:ro
+   - ./lib/zabbix/alertscripts:/usr/lib/zabbix/alertscripts:ro
+   - ./lib/zabbix/externalscripts:/usr/lib/zabbix/externalscripts:ro
+   - ./lib/zabbix/export:/var/lib/zabbix/export:rw
+   - ./lib/zabbix/modules:/var/lib/zabbix/modules:ro
+   - ./lib/zabbix/enc:/var/lib/zabbix/enc:ro
+   - ./lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
+   - ./lib/zabbix/mibs:/var/lib/zabbix/mibs:ro
    - snmptraps:/var/lib/zabbix/snmptraps:rw
   links:
    - mysql-server:mysql-server
@@ -38,9 +38,7 @@ services:
    - MYSQL_USER
    - MYSQL_PASSWORD
    - MYSQL_ROOT_PASSWORD
-#   - client-key.pem
-#   - client-cert.pem
-#   - root-ca.pem
+
   depends_on:
    - mysql-server
    - zabbix-java-gateway
@@ -54,8 +52,6 @@ services:
       - zabbix-server-mysql-centos
       - zabbix-server-api
    zbx_net_frontend:
-#  devices:
-#   - "/dev/ttyUSB0:/dev/ttyUSB0"
   stop_grace_period: 30s
   sysctls:
    - net.ipv4.ip_local_port_range=1024 65000
@@ -70,17 +66,17 @@ services:
    com.zabbix.os: "centos"
 
  zabbix-proxy-sqlite3:
-  image: zabbix/zabbix-proxy-sqlite3:centos-5.0-latest
+  image: zabbix/zabbix-proxy-sqlite3:centos-5.4-latest
   ports:
    - "10061:10051"
   volumes:
    #- /etc/localtime:/etc/localtime:ro
    #- /etc/timezone:/etc/timezone:ro 
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/externalscripts:/usr/lib/zabbix/externalscripts:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/modules:/var/lib/zabbix/modules:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/enc:/var/lib/zabbix/enc:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/mibs:/var/lib/zabbix/mibs:ro
+   - ./lib/zabbix/externalscripts:/usr/lib/zabbix/externalscripts:ro
+   - ./lib/zabbix/modules:/var/lib/zabbix/modules:ro
+   - ./lib/zabbix/enc:/var/lib/zabbix/enc:ro
+   - ./lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
+   - ./lib/zabbix/mibs:/var/lib/zabbix/mibs:ro
    - snmptraps:/var/lib/zabbix/snmptraps:rw
   links:
    - zabbix-server:zabbix-server
@@ -120,7 +116,7 @@ services:
    com.zabbix.os: "centos"
 
  zabbix-web-nginx-mysql:
-  image: zabbix/zabbix-web-nginx-mysql:centos-5.0-latest
+  image: zabbix/zabbix-web-nginx-mysql:centos-5.4-latest
   ports:
    - "8081:8080"
    - "8443:8443"
@@ -131,8 +127,8 @@ services:
   volumes:
    #- /etc/localtime:/etc/localtime:ro
    #- /etc/timezone:/etc/timezone:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/nginx/ssl/nginx:/etc/ssl/nginx:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/share/zabbix/modules/:/usr/share/zabbix/modules/:ro
+   - ./lib/nginx/ssl/nginx:/etc/ssl/nginx:ro
+   - ./lib/zabbix/share/zabbix/modules/:/usr/share/zabbix/modules/:ro
   deploy:
    resources:
     limits:
@@ -147,9 +143,7 @@ services:
   secrets:
    - MYSQL_USER
    - MYSQL_PASSWORD
-#   - client-key.pem
-#   - client-cert.pem
-#   - root-ca.pem
+
   depends_on:
    - mysql-server
    - zabbix-server
@@ -178,7 +172,7 @@ services:
    com.zabbix.os: "centos"
 
  zabbix-agent:
-  image: zabbix/zabbix-agent:centos-5.0-latest
+  image: zabbix/zabbix-agent:centos-5.4-latest
   ports:
    - "10050:10050"
   volumes:
@@ -186,9 +180,9 @@ services:
    #- /etc/timezone:/etc/timezone:ro
    #########################
    #- ./zbx_env/etc/zabbix/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/modules:/var/lib/zabbix/modules:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/enc:/var/lib/zabbix/enc:ro
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
+   - ./lib/zabbix/modules:/var/lib/zabbix/modules:ro
+   - ./lib/zabbix/enc:/var/lib/zabbix/enc:ro
+   - ./lib/zabbix/ssh_keys:/var/lib/zabbix/ssh_keys:ro
   links:
    - zabbix-server:zabbix-server
   deploy:
@@ -218,7 +212,7 @@ services:
    com.zabbix.os: "centos"
 
  zabbix-java-gateway:
-  image: zabbix/zabbix-java-gateway:centos-5.0-latest
+  image: zabbix/zabbix-java-gateway:centos-5.4-latest
   ports:
    - "10052:10052"
   deploy:
@@ -244,7 +238,7 @@ services:
    com.zabbix.os: "centos"
 
  zabbix-snmptraps:
-  image: zabbix/zabbix-snmptraps:centos-5.0-latest
+  image: zabbix/zabbix-snmptraps:centos-5.4-latest
   ports:
    - "162:1162/udp"
   #volumes:
@@ -276,21 +270,16 @@ services:
    - --character-set-server=utf8
    - --collation-server=utf8_bin
    - --default-authentication-plugin=mysql_native_password
-#   - --require-secure-transport
-#   - --ssl-ca=/run/secrets/root-ca.pem
-#   - --ssl-cert=/run/secrets/server-cert.pem
-#   - --ssl-key=/run/secrets/server-key.pem
+
   volumes:
-   - /Users/rafael/Documents/Docker/zabbix-stack/data-docker/new-zabbix/lib/mysql:/var/lib/mysql:rw
+   - ./lib/mysql:/var/lib/mysql:rw
   env_file:
    - .env_db_mysql
   secrets:
    - MYSQL_USER
    - MYSQL_PASSWORD
    - MYSQL_ROOT_PASSWORD
-#   - server-key.pem
-#   - server-cert.pem
-#   - root-ca.pem
+
   stop_grace_period: 1m
   networks:
    zbx_net_backend:
@@ -298,16 +287,6 @@ services:
      - mysql-server
      - zabbix-database
      - mysql-database
-
-# elasticsearch:
-#  image: elasticsearch
-#  environment:
-#   - transport.host=0.0.0.0
-#   - discovery.zen.minimum_master_nodes=1
-#  networks:
-#   zbx_net_backend:
-#    aliases:
-#     - elasticsearch
 
 networks:
   zbx_net_frontend:
@@ -338,13 +317,3 @@ secrets:
     file: ./.MYSQL_PASSWORD
   MYSQL_ROOT_PASSWORD:
     file: ./.MYSQL_ROOT_PASSWORD
-#  client-key.pem:
-#    file: ./.ZBX_DB_KEY_FILE
-#  client-cert.pem:
-#    file: ./.ZBX_DB_CERT_FILE
-#  root-ca.pem:
-#    file: ./.ZBX_DB_CA_FILE
-#  server-cert.pem:
-#    file: ./.DB_CERT_FILE
-#  server-key.pem:
-#    file: ./.DB_KEY_FILE
